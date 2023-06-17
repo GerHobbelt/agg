@@ -162,7 +162,7 @@ namespace agg
             if(m_label[0])
             {
                 char buf[256];
-                sprintf(buf, m_label, value());
+                snprintf(buf, sizeof(buf), m_label, value());
                 m_text.text(buf);
             }
             m_text.start_point(m_x1, m_y1);

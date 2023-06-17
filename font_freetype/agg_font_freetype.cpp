@@ -112,10 +112,9 @@ namespace agg
     {
         unsigned crc = (unsigned)~0;
         const unsigned char* p;
-        unsigned len = 0; 
         unsigned nr = size;
 
-        for (len += nr, p = buf; nr--; ++p) 
+        for (p = buf; nr--; ++p)
         {
             crc = (crc >> 8) ^ crc32tab[(crc ^ *p) & 0xff];
         }
@@ -837,7 +836,7 @@ namespace agg
                 gamma_hash = calc_crc32(gamma_table, sizeof(gamma_table));
             }
 
-            sprintf(m_signature, 
+            snprintf(m_signature, m_name_len + 1 + 256,
                     "%s,%u,%d,%d,%d:%dx%d,%d,%d,%08X", 
                     m_name,
                     m_char_map,
@@ -856,7 +855,7 @@ namespace agg
                 double mtx[6];
                 char buf[100];
                 m_affine.store_to(mtx);
-                sprintf(buf, ",%08X%08X%08X%08X%08X%08X", 
+                snprintf(buf, sizeof(buf), ",%08X%08X%08X%08X%08X%08X",
                     dbl_to_plain_fx(mtx[0]), 
                     dbl_to_plain_fx(mtx[1]), 
                     dbl_to_plain_fx(mtx[2]), 

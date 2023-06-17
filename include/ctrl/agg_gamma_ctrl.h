@@ -96,7 +96,7 @@ namespace agg
         double m_ys2;
         double m_xt1;
         double m_yt1;
-        double m_xt2;
+        /* double m_xt2;*/ /*  unused field */
         double m_yt2;
         conv_stroke<gamma_spline> m_curve_poly;
         ellipse                   m_ellipse;

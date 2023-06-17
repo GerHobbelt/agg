@@ -21,7 +21,6 @@ namespace agg
 {
 
     //------------------------------------------------------------------------
-    const double curve_distance_epsilon                  = 1e-30;
     const double curve_collinearity_epsilon              = 1e-30;
     const double curve_angle_tolerance_epsilon           = 0.01;
     enum curve_recursion_limit_e { curve_recursion_limit = 32 };
@@ -253,9 +252,6 @@ namespace agg
     }
 
     //------------------------------------------------------------------------
-    static double MSC60_fix_ICE(double v) { return v; }
-
-    //------------------------------------------------------------------------
     void curve4_inc::init(double x1, double y1, 
                           double x2, double y2, 
                           double x3, double y3,
@@ -277,11 +273,7 @@ namespace agg
                       sqrt(dx2 * dx2 + dy2 * dy2) + 
                       sqrt(dx3 * dx3 + dy3 * dy3)) * 0.25 * m_scale;
 
-#if defined(_MSC_VER) && _MSC_VER <= 1200
-        m_num_steps = uround(MSC60_fix_ICE(len));
-#else
         m_num_steps = uround(len);
-#endif
 
         if(m_num_steps < 4)
         {

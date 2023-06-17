@@ -107,7 +107,6 @@ namespace agg
         int      m_move_pnt;
         double   m_pdx;
         double   m_pdy;
-        const trans_affine* m_mtx;
     };
 
 

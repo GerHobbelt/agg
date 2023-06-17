@@ -41,7 +41,7 @@ namespace agg
         m_yc2(y2 - m_text_height * 2.0),
         m_xt1(x1),
         m_yt1(y2 - m_text_height * 2.0),
-        m_xt2(x2),
+        /* m_xt2(x2), */ /* unused */
         m_yt2(y2),
         m_curve_poly(m_gamma_spline),
         m_text_poly(m_text),
@@ -240,7 +240,7 @@ namespace agg
 
         case 6:                 // Text
             m_gamma_spline.values(&kx1, &ky1, &kx2, &ky2);
-            sprintf(tbuf, "%5.3f %5.3f %5.3f %5.3f", kx1, ky1, kx2, ky2);
+            snprintf(tbuf, sizeof(tbuf), "%5.3f %5.3f %5.3f %5.3f", kx1, ky1, kx2, ky2);
             m_text.text(tbuf);
             m_text.size(m_text_height, m_text_width);
             m_text.start_point(m_xt1 + m_border_width * 2.0, (m_yt1 + m_yt2) * 0.5 - m_text_height * 0.5);
