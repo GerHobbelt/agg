@@ -55,6 +55,7 @@ SET( antigrain_HEADERS
     ${antigrain_SOURCE_DIR}/include/agg_path_storage_integer.h
     ${antigrain_SOURCE_DIR}/include/agg_pattern_filters_rgba.h
     ${antigrain_SOURCE_DIR}/include/agg_pixfmt_amask_adaptor.h
+    ${antigrain_SOURCE_DIR}/include/agg_pixfmt_base.h
     ${antigrain_SOURCE_DIR}/include/agg_pixfmt_gray.h
     ${antigrain_SOURCE_DIR}/include/agg_pixfmt_rgb.h
     ${antigrain_SOURCE_DIR}/include/agg_pixfmt_rgb_packed.h
@@ -65,6 +66,7 @@ SET( antigrain_HEADERS
     ${antigrain_SOURCE_DIR}/include/agg_rasterizer_outline.h
     ${antigrain_SOURCE_DIR}/include/agg_rasterizer_outline_aa.h
     ${antigrain_SOURCE_DIR}/include/agg_rasterizer_scanline_aa.h
+    ${antigrain_SOURCE_DIR}/include/agg_rasterizer_scanline_aa_nogamma.h
     ${antigrain_SOURCE_DIR}/include/agg_rasterizer_sl_clip.h
     ${antigrain_SOURCE_DIR}/include/agg_renderer_base.h
     ${antigrain_SOURCE_DIR}/include/agg_renderer_markers.h
@@ -128,7 +130,7 @@ SET( antigrain_HEADERS
     ${antigrain_SOURCE_DIR}/include/agg_span_gradient_image.h
 )
 
-ADD_LIBRARY( antigrain STATIC
+ADD_LIBRARY( agg STATIC
 
     agg_arc.cpp
     agg_arrowhead.cpp
@@ -158,9 +160,9 @@ ADD_LIBRARY( antigrain STATIC
     ${antigrain_HEADERS}
 )
 
-ADD_LIBRARY ( antigrain_internal INTERFACE )
-ADD_LIBRARY( antigrain::antigrain ALIAS antigrain_internal )
-TARGET_LINK_LIBRARIES( antigrain_internal INTERFACE antigrain )
+ADD_LIBRARY ( agg_internal INTERFACE )
+ADD_LIBRARY( agg::agg ALIAS agg_internal )
+TARGET_LINK_LIBRARIES( agg_internal INTERFACE agg )
 #controls code for interactive modifying samples
 IF ( agg_BUILD_CONTROLS )
 
@@ -169,18 +171,9 @@ IF ( agg_BUILD_CONTROLS )
 ENDIF ( agg_BUILD_CONTROLS )
 
 # the main include dir of Agg
-TARGET_INCLUDE_DIRECTORIES( antigrain PUBLIC ${antigrain_SOURCE_DIR}/include )
-
-##################################################
-# Set all includes, flags, libraries, related to expat
-##################################################
-
-IF( agg_USE_EXPAT )
-
-    FIND_PACKAGE( EXPAT CONFIG REQUIRED )
-    TARGET_LINK_LIBRARIES( antigrain PUBLIC expat::expat)
-
-ENDIF( agg_USE_EXPAT )
+TARGET_INCLUDE_DIRECTORIES( agg PUBLIC
+    $<BUILD_INTERFACE:${antigrain_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include/agg>)
 
 
 #platform stuff to ease sample use
@@ -188,38 +181,26 @@ IF( agg_BUILD_PLATFORM )
 
     ADD_SUBDIRECTORY( platform )
 
-
 ENDIF( agg_BUILD_PLATFORM )
 
+SET_TARGET_PROPERTIES(
+    agg
+    PROPERTIES
+    PUBLIC_HEADER "${antigrain_HEADERS}"
+    VERSION ${agg_VERSION}
+    SOVERSION 0.${agg_VERSION}
+)
 
-IF ( agg_USE_AGG2D )
+INSTALL(TARGETS agg
+    EXPORT aggTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT runtime
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT devel
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/agg COMPONENT devel
+)
 
-    OPTION( agg_USE_AGG2D_FREETYPE "Agg 2D graphical context uses freetype" OFF)
-
-    ADD_LIBRARY( agg2d STATIC
-        ../agg2d/agg2d.cpp
-        ../agg2d/agg2d.h
-    )
-    TARGET_INCLUDE_DIRECTORIES( agg2d PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../agg2d )
-    SET( AGG_INCLUDE_DIRS ${AGG_INCLUDE_DIRS} agg2d )
-
-
-    TARGET_COMPILE_DEFINITIONS( agg2d PUBLIC AGG_USE_AGG2D )
-    TARGET_LINK_LIBRARIES( agg2d PUBLIC antigrain freetypefont )
-
-    ADD_LIBRARY( antigrain::agg2d ALIAS agg2d )
-    TARGET_LINK_LIBRARIES( antigrain_internal INTERFACE antigrain::agg2d )
-
-    INSTALL( TARGETS agg2d DESTINATION lib )
-    INSTALL( FILES ../agg2d/agg2d.h DESTINATION agg/agg2d )
-
-    IF ( agg_USE_AGG2D_FREETYPE )
-        TARGET_COMPILE_DEFINITIONS( agg2d PUBLIC AGG2D_USE_FREETYPE )
-    ENDIF ( agg_USE_AGG2D_FREETYPE )
-
-ENDIF ( agg_USE_AGG2D )
-
-
-
-INSTALL( FILES ${antigrain_HEADERS} DESTINATION agg/include )
-INSTALL( TARGETS antigrain DESTINATION lib )
+INSTALL(EXPORT aggTargets
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/agg/
+    FILE aggTargets.cmake
+    NAMESPACE ${PROJECT_NAME}::
+    COMPONENT devel
+)
